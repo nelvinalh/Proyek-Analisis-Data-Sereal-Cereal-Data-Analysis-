@@ -1,74 +1,136 @@
 # 🥣 Analisis Data Sereal & Nutrisi (Cereal Data Analysis)
 
 ## 📋 Deskripsi Proyek
-Proyek ini bertujuan untuk melakukan analisis data eksploratif (*Exploratory Data Analysis*) terhadap dataset **Cereals**. Menggunakan **KNIME Analytics Platform**, proyek ini memproses data mentah, melakukan normalisasi nutrisi, dan memvisualisasikan hubungan antara kandungan nutrisi (seperti gula dan kalori) dengan kepuasan konsumen (*rating*).
+Proyek ini bertujuan untuk melakukan **Analisis Data Eksploratif (Exploratory Data Analysis)** terhadap dataset **Cereals** menggunakan **KNIME Analytics Platform**.
+
+Analisis dilakukan secara menyeluruh mulai dari pembersihan data (*data cleaning*), normalisasi, visualisasi pola nutrisi, hingga klasifikasi tingkat kesehatan sereal berdasarkan kandungan gula dan serat.
 
 ## 🎯 Tujuan Utama
-1.  **Data Preparation:** Membersihkan dan menstandarisasi data numerik.
-2.  **Insight & Visualisasi:** Menemukan faktor nutrisi apa yang paling mempengaruhi *rating* sereal.
-3.  **Statistik:** Melihat distribusi data nutrisi secara menyeluruh.
+1.  **Membersihkan dan menstandarisasi data** untuk memastikan kualitas data yang baik sebelum dianalisis.
+2.  **Melakukan visualisasi distribusi nutrisi** agar dapat memahami pola dan karakteristik dataset.
+3.  **Melakukan klasifikasi** (*Healthy / Not Healthy*) dan tingkat gula (*Sugar Level*) berdasarkan ambang batas nutrisi yang valid.
+4.  **Mencari insight** tentang hubungan nutrisi (terutama serat & gula) terhadap kualitas sereal (*rating*).
 
 ---
 
-## 🛠️ Alur Kerja KNIME (Workflow)
+## 🛠️ KNIME Workflow
+Workflow KNIME dibangun dengan tahapan sistematis sebagai berikut:
 
-Proyek ini dibangun menggunakan *workflow* KNIME dengan tahapan sebagai berikut:
+### 1. 📥 Data Ingestion
+* **Node:** `CSV Reader`
+    * Membaca dataset `Cereals.csv` sebagai data mentah.
 
-### 1. Data Ingestion & Preparation
-* **CSV Reader:** Membaca dataset `Cereals.csv`.
-* **Column Filter:** Menyeleksi fitur yang relevan untuk analisis dengan mengecualikan (exclude) kolom name, shelf, weight, dan cups, serta mempertahankan seluruh kolom data lainnya.
+### 2. 🧹 Data Cleaning & Preparation
+* **Node:** `Column Filter`
+    * Menghapus kolom yang tidak dibutuhkan: `name`, `shelf`, `weight`, `cups`.
+    * Mempertahankan kolom nutrisi dan rating.
+* **Node:** `Missing Value`
+    * Menangani nilai hilang.
+    * **Strategi:** Kolom numerik (integer & float) diganti dengan nilai **Median**.
 
-### 2. Data Processing
-* **Normalizer:** Mengubah skala semua kolom numerik (*calories, protein, fat, sugars, rating*, dll.) menjadi rentang **0 hingga 1 (Min-Max Normalization)**. Langkah ini penting agar perbandingan antar nutrisi menjadi adil dan visualisasi lebih akurat.
+### 3. 📊 Visualisasi Data (Sebelum Normalisasi)
+Pada tahap ini, dilakukan eksplorasi data untuk memahami struktur dan pola awal.
 
-### 3. Visualisasi & Analisis
-Output dari proses normalisasi dihubungkan ke beberapa *node* visualisasi secara paralel:
-* **Scatter Plot:** Menganalisis korelasi antara dua variabel (Gula vs Rating).
-* **Histogram:** Melihat distribusi frekuensi *rating* sereal.
-* **Bar Chart:** Membandingkan rata-rata kalori per produk/produsen.
-* **Statistics:** Menghasilkan ringkasan statistik deskriptif (Mean, Median, Standard Deviation).
+* **Histogram Sugars**
+    * Menampilkan distribusi kadar gula.
+    * *Insight:* Sebagian besar sereal memiliki gula yang cukup tinggi.
+* **Histogram Fiber**
+    * Menampilkan distribusi kandungan serat.
+    * *Insight:* Kebanyakan sereal memiliki serat rendah, hanya sedikit produk dengan serat tinggi.
+* **Bar Chart (Rating)**
+    * Sumbu X = Rating, Y = Average.
+    * Memudahkan melihat kecenderungan produk rating tinggi/rendah.
+* **Box Plot (Sugar & Fiber)**
+    * Menentukan persebaran nilai serta mendeteksi *outlier*.
+    * *Insight:* Sugar memiliki rentang yang jauh lebih lebar daripada fiber.
+* **Scatter Plot (Rating vs Sugars)**
+    * Sumbu Y = Rating, Sumbu X = Sugars.
+    * *Interpretasi:* Terlihat jelas bahwa **semakin tinggi gula → rating semakin rendah.**
 
-### 4. Klasifikasi
-Pada tahap ini dilakukan proses **klasifikasi kesehatan sereal** menggunakan node **Rule Engine** di KNIME. Klasifikasi dibuat berdasarkan kandungan nutrisi untuk menentukan apakah suatu sereal termasuk **sehat** atau **tidak sehat**.
-#### 1. Membuat Label Kesehatan (`health_class`) — Rule Engine
-Node **Rule Engine** digunakan untuk membuat kolom baru bernama `health_class`.
-Aturan yang digunakan:
-$fiber$ >= 5 AND $sugars$ <= 6 => "Healthy"
+### 4. 🔧 Normalisasi Data
+* **Node:** `Normalizer`
+    * Metode: **Min–Max Normalization** (Rentang 0–1).
+    * Tujuan: Agar fitur nutrisi dapat dibandingkan secara adil.
+* **Node:** `Statistics`
+    * Menghasilkan nilai statistik seperti mean, median, min, max.
+    * **Threshold yang ditemukan (Normalized Mean):**
+        * Rata-rata sugars: **0.468**
+        * Rata-rata fiber: **0.154**
+    * *Catatan:* Kedua nilai ini digunakan sebagai dasar aturan klasifikasi di tahap berikutnya.
+
+### 5. 🧭 Klasifikasi & Aturan Logika (Rule Engine)
+
+#### A. Rule Engine 1: Klasifikasi Kesehatan (health_class)
+Tujuan: Mengelompokkan sereal menjadi "Sehat" atau "Tidak Sehat".
+
+**Aturan Logika (Code):**
+```text
+$fiber$ >= 0.154 AND $sugars$ <= 0.468 => "Healthy"
 TRUE => "Not Healthy"
-Penjelasan aturan:
-- Sereal dianggap **Healthy** jika **serat ≥ 5** dan **gula ≤ 6**.  
-- Selain itu dikategorikan sebagai **Not Healthy**.
-#### 2. Visualisasi Hasil — Pie Chart
-Node **Pie Chart** digunakan untuk menampilkan distribusi kategori `health_class`.
-Pengaturan pada Pie Chart:
-- **Category Dimension:** `health_class`
-- **Aggregation:** Occurrence count
-- **Aggregate small categories:** Off
-Pie chart menampilkan proporsi antara sereal **Healthy** dan **Not Healthy**.
+```
+## 📊 Hasil Visualisasi & Klasifikasi
+
+Berikut adalah hasil dari penerapan aturan logika (*Rule Engine*) dan visualisasi distribusi data.
+
+### A. Klasifikasi Kesehatan (Health Class)
+Visualisasi ini menunjukkan proporsi sereal yang memenuhi kriteria "Sehat" (Serat tinggi, Gula rendah).
+
+* **Pie Chart Distribution:**
+    * 🟢 **Healthy:** 25.97%
+    * 🔴 **Not Healthy:** 74.03%
+* **Scatter Plot (Color by Health Class):**
+    * Plot antara *fiber* dan *sugar* dengan pewarnaan kategori menunjukkan pemisahan data yang tegas antara kelompok sehat dan tidak.
+
+### B. Rule Engine 2: Klasifikasi Sugar Level (sugar_level)
+**Tujuan:** Mengategorikan level gula sereal.
+
+**Aturan Logika (Code):**
+```text
+$sugars$ <= 0.468 => "Low Sugar"
+TRUE => "High Sugar"
+```
+
+### Hasil Visualisasi (Pie Chart)
+* **Low Sugar:** 54.55%
+* **High Sugar:** 45.45%
 
 ---
 
-## 📊 Hasil Analisis (Key Insights)
-Berdasarkan hasil visualisasi dari *workflow* KNIME, ditemukan beberapa *insight* penting:
+## 💡 Hasil Analisis (Key Insights)
 
-### 📉 1. Korelasi Gula dan Rating (Scatter Plot)
-* **Temuan:** Terdapat **korelasi negatif yang kuat** antara kandungan gula (*sugars*) dan *rating*.
-* **Interpretasi:** Titik-titik data bergerak menurun dari kiri atas ke kanan bawah. Artinya, **semakin tinggi kandungan gula, semakin rendah rating sereal tersebut.** Konsumen cenderung memberikan nilai lebih tinggi pada sereal yang lebih sehat (rendah gula).
+1.  **Hubungan Gula & Rating**
+    Scatter plot menunjukkan pola negatif yang kuat. **Semakin tinggi gula, semakin rendah rating** sereal tersebut.
+2.  **Sebaran Serat & Gula**
+    *Fiber* cenderung rendah pada mayoritas produk. *Sugar* lebih bervariasi, tetapi banyak yang berada di level tinggi.
+3.  **Klasifikasi Healthy**
+    Hanya **25.97%** produk yang memenuhi kriteria sehat (kombinasi serat tinggi + gula rendah). Ini selaras dengan visualisasi awal yang menunjukkan kelangkaan sereal berserat tinggi.
+4.  **Sugar Level vs Health**
+    Meskipun **54.55%** sereal berada dalam kategori *Low Sugar*, banyak dari mereka tetap masuk kategori *Not Healthy* karena kandungan seratnya yang sangat rendah.
 
-### 📊 2. Distribusi Rating (Histogram)
-* **Temuan:** Mayoritas sereal memiliki *rating* di kisaran menengah ke bawah. Hanya sedikit sereal yang mencapai *rating* sangat tinggi (>80), yang biasanya merupakan sereal dengan serat tinggi dan gula rendah.
+---
 
-### 🍫 3. Kandungan Kalori (Bar Chart)
-* **Temuan:** Visualisasi ini membantu mengidentifikasi sereal mana yang paling padat energi. Sereal dengan kalori tinggi sering kali tidak berbanding lurus dengan *rating* tinggi.
+## 🎯 Tujuan Klasifikasi & Visualisasi
 
-### 🥗 4. Distribusi Kesehatan Sereal (Klasifikasi)
-Hasil klasifikasi menggunakan Rule Engine menunjukkan bahwa sebagian besar produk dalam dataset tidak memenuhi kriteria sereal sehat.  
-- **Healthy:** 5.19%  
-- **Not Healthy:** 94.81%  
-Hal ini menunjukkan bahwa mayoritas sereal pada dataset memiliki kandungan serat rendah dan/atau gula yang cukup tinggi, sehingga tidak memenuhi standar nutrisi yang ditetapkan.
+### ✨ Tujuan Visualisasi
+* **Memahami Pola:** Melihat distribusi kandungan nutrisi secara visual.
+* **Analisis Korelasi:** Melihat hubungan antara nutrisi & rating.
+* **Dasar Aturan:** Menemukan alasan kuat untuk membuat aturan klasifikasi.
+* **Penentuan Threshold:** Menentukan ambang batas (*threshold*) untuk *sugar* & *fiber* berdasarkan nilai statistik dan grafik.
+
+### ✨ Tujuan Klasifikasi
+* **Segmentasi Produk:** Mengelompokkan produk berdasarkan kesehatan (*Healthy vs Not Healthy*).
+* **Simplifikasi:** Menyederhanakan interpretasi data dengan memberikan label kategori yang mudah dipahami.
+* **Rekomendasi:** Membantu menjawab pertanyaan: *"Sereal mana yang paling layak dikategorikan sehat?"*
+* **Proporsi Data:** Menganalisis proporsi gula rendah vs gula tinggi pada dataset.
+* **Pengambilan Keputusan:** Memberikan dasar yang kuat untuk rekomendasi produk sehat.
 
 ---
 
 ## 📝 Kesimpulan
-Faktor nutrisi, terutama **kandungan gula**, memainkan peran krusial dalam penentuan *rating* sereal. Produsen sereal yang ingin meningkatkan persepsi konsumen sebaiknya fokus pada pengurangan gula dan peningkatan serat, sebagaimana dibuktikan oleh korelasi data yang kuat.
 
+Analisis ini menunjukkan bahwa kandungan **gula** dan **serat** adalah faktor paling berpengaruh terhadap persepsi konsumen (*rating*) dan kesehatan sereal secara keseluruhan.
+
+**Poin Penting:**
+* Rata-rata sereal memiliki gula tinggi dan serat rendah.
+* Hanya sebagian kecil produk yang memenuhi kriteria sehat.
+* Kandungan gula memiliki korelasi negatif yang signifikan terhadap rating sereal.
