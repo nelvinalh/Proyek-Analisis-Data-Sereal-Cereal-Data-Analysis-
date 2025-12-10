@@ -86,7 +86,7 @@ Visualisasi ini menunjukkan proporsi sereal yang memenuhi kriteria "Sehat" (Sera
    <img src="Distribusi Proporsi Healthy vs Not Healthy.png" width="700" height="400">
 * **Scatter Plot (Color by Health Class):**
     * Plot antara *fiber* dan *sugar* dengan pewarnaan kategori menunjukkan pemisahan data yang tegas antara kelompok sehat dan tidak.
-  <img src="Cereal Health_Sugar vs Fiber (Green = Healthy, Red = Not Healthy).png" width="700" height="400">
+  <img src="Cereal Health_ Sugar vs Fiber (Green = Healthy, Red = Not Healthy).png" width="700" height="400">
 
 ### B. Rule Engine 2: Klasifikasi Sugar Level (sugar_level)
 **Tujuan:** Mengategorikan level gula sereal.
