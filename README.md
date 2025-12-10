@@ -138,7 +138,10 @@ TRUE => "High Sugar"
 
 Analisis ini menunjukkan bahwa kandungan **gula** dan **serat** adalah faktor paling berpengaruh terhadap persepsi konsumen (*rating*) dan kesehatan sereal secara keseluruhan.
 
-**Poin Penting:**
-* Rata-rata sereal memiliki gula tinggi dan serat rendah.
-* Hanya sebagian kecil produk yang memenuhi kriteria sehat.
-* Kandungan gula memiliki korelasi negatif yang signifikan terhadap rating sereal.
+## ⚡Implikasi dari Analisis
+
+* **Pengambilan Keputusan Produk**: Produsen sereal harus menyeimbangkan kandungan gula dan serat; gula rendah saja tidak cukup untuk menjamin sereal sehat.
+* **Strategi Reformulasi**: Menambahkan serat ke produk yang sudah rendah gula dapat meningkatkan kategori “Healthy” dan menarik konsumen yang peduli kesehatan.
+* **Persepsi Konsumen**: Gula tinggi berdampak negatif terhadap rating, sehingga produk manis berisiko menurunkan persepsi kualitas.
+* **Peluang Pasar**: Hanya sebagian kecil sereal saat ini yang sehat, sehingga ada peluang diferensiasi produk sehat di pasar.
+* **Keseimbangan Nutrisi**: Serat menjadi faktor pembeda utama; fokus pada peningkatan serat dapat meningkatkan persepsi dan klasifikasi kesehatan sereal.
