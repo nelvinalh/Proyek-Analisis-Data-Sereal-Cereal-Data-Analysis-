@@ -34,18 +34,23 @@ Pada tahap ini, dilakukan eksplorasi data untuk memahami struktur dan pola awal.
 * **Histogram Sugars**
     * Menampilkan distribusi kadar gula.
     * *Insight:* Sebagian besar sereal memiliki gula yang cukup tinggi.
+   <img src="Histogram Distribusi Kandungan Gula (Sugars).png" width="700" height="400">
 * **Histogram Fiber**
     * Menampilkan distribusi kandungan serat.
     * *Insight:* Kebanyakan sereal memiliki serat rendah, hanya sedikit produk dengan serat tinggi.
+   <img src="Histogram Distribusi Kandungan Serat (Fiber).png" width="700" height="400">
 * **Bar Chart (Rating)**
     * Sumbu X = Rating, Y = Average.
     * Memudahkan melihat kecenderungan produk rating tinggi/rendah.
+   <img src="Diagram Batang Rating Setiap Produk Sereal.png" width="700" height="400">
 * **Box Plot (Sugar & Fiber)**
     * Menentukan persebaran nilai serta mendeteksi *outlier*.
     * *Insight:* Sugar memiliki rentang yang jauh lebih lebar daripada fiber.
+   <img src="Boxplot Kandungan Gula dan Fiber pada Cereal.png" width="700" height="400">
 * **Scatter Plot (Rating vs Sugars)**
     * Sumbu Y = Rating, Sumbu X = Sugars.
     * *Interpretasi:* Terlihat jelas bahwa **semakin tinggi gula → rating semakin rendah.**
+   <img src="Scatter Plot Hubungan Fiber dan Sugars.png" width="700" height="400">
 
 ### 4. 🔧 Normalisasi Data
 * **Node:** `Normalizer`
@@ -78,8 +83,10 @@ Visualisasi ini menunjukkan proporsi sereal yang memenuhi kriteria "Sehat" (Sera
 * **Pie Chart Distribution:**
     * 🟢 **Healthy:** 25.97%
     * 🔴 **Not Healthy:** 74.03%
+   <img src="Distribusi Proporsi Healthy vs Not Healthy.png" width="700" height="400">
 * **Scatter Plot (Color by Health Class):**
     * Plot antara *fiber* dan *sugar* dengan pewarnaan kategori menunjukkan pemisahan data yang tegas antara kelompok sehat dan tidak.
+  <img src="Cereal Health_Sugar vs Fiber (Green = Healthy, Red = Not Healthy).png" width="700" height="400">
 
 ### B. Rule Engine 2: Klasifikasi Sugar Level (sugar_level)
 **Tujuan:** Mengategorikan level gula sereal.
@@ -93,6 +100,7 @@ TRUE => "High Sugar"
 ### Hasil Visualisasi (Pie Chart)
 * **Low Sugar:** 54.55%
 * **High Sugar:** 45.45%
+<img src="Diagram Lingkaran Kategori Sugar Level.png" width="700" height="400">
 
 ---
 
